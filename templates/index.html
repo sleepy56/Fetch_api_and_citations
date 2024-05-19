@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Citations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .citation {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .citation a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .citation a:hover {
+            text-decoration: underline;
+        }
+        #runModelButton {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #runModelButton:disabled {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Citations</h1>
+    <button id="runModelButton">Run Model</button>
+    <div id="citations"></div>
+
+    <script>
+        document.getElementById('runModelButton').addEventListener('click', function() {
+            fetch('/run_model', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    this.disabled = true;
+                    this.innerText = 'Model is running...';
+                });
+        });
+
+        function loadCitations() {
+            fetch('/citations')
+                .then(response => response.json())
+                .then(data => {
+                    const citationsContainer = document.getElementById('citations');
+                    citationsContainer.innerHTML = '';  // Clear existing content
+                    data.forEach((citationGroup, index) => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'citation';
+                        groupDiv.innerHTML = `<h3>Group ${index + 1}</h3>`;
+                        citationGroup.forEach(citation => {
+                            const citationDiv = document.createElement('div');
+                            citationDiv.innerHTML = citation.link ? `<a href="${citation.link}" target="_blank">${citation.link}</a>` : `ID: ${citation.id}`;
+                            groupDiv.appendChild(citationDiv);
+                        });
+                        citationsContainer.appendChild(groupDiv);
+                    });
+                });
+        }
+
+        // Load citations when the page is loaded
+        window.onload = loadCitations;
+    </script>
+</body>
+</html>
